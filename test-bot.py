@@ -5,14 +5,14 @@ from typing import Optional
 import os
 from dotenv import load_dotenv
 
-Setup och Token
+#Setup och Token
 load_dotenv()
 token = os.getenv("Token")
 
 # Definiera botten med alla rättigheter (Intents)
 bot = commands.Bot(command_prefix="!", intents=discord.Intents.all())
 
-Start-händelse (Synkar slash-kommandon)
+#Start-händelse (Synkar slash-kommandon)
 @bot.event
 async def on_ready():
     print(f'Inloggad som {bot.user.name} (ID: {bot.user.id})')
@@ -24,7 +24,7 @@ async def on_ready():
         print(f"❌ Kunde inte synka kommandon: {e}")
     print('------ Botten är nu online! ------')
 
-Vanliga !-kommandon
+#Vanliga !-kommandon
 @bot.command()
 async def hello(ctx):
         await ctx.send("Hello!")
@@ -74,6 +74,41 @@ async def slash_send(interaction: discord.Interaction, channel: discord.TextChan
     await channel.send(message)
     # Svara användaren (ephemeral=True betyder att bara du ser svaret)
     await interaction.response.send_message(f"Klart! Skickade meddelandet till {channel.mention}", ephemeral=True)
+
+
+#Math
+@bot.tree.command(name="calculate", description="Addera två tal (x + y)")
+@app_commands.describe(x="Första talet", calculation_method = "Välj räknestätt" , y="Andra talet")
+@app_commands.choices(calculation_method=[
+    app_commands.Choice(name="Addera (+)", value="+"),
+    app_commands.Choice(name="Subtrahera (-)", value="-"),
+    app_commands.Choice(name="Dividera (/)", value="/"),
+    app_commands.Choice(name="Multiplicera (*)", value="*")
+])
+async def slash_addition(interaction: discord.Interaction, x: int, calculation_method: str,  y: int):
+    embed = discord.Embed(
+        title="Mattematisk uträknign",
+        description="Hjälp att genomföra din uträkning",
+        color=discord.Color.blue()
+    )
+
+    if calculation_method == "+":
+        summa = x + y
+    elif calculation_method == "-":
+        summa = x - y
+    elif calculation_method == "/":
+        summa = x / y
+    elif calculation_method == "*":
+        summa = x * y
+    
+    embed.add_field(name="Mattematiskt uttryck", value=f"{x} {calculation_method} {y}")
+    embed.add_field(name="Resultat", value=f"{summa}")
+    await interaction.response.send_message(embed=embed)
+
+"""     await interaction.response.send_message(f"{x} {calculation_method} {y} = {summa}", ephemeral=true)
+ """    
+
+
 
 #Kör botten på token från .env-filen 
 bot.run(token)
